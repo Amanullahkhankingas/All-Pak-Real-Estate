@@ -8,8 +8,9 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 dotenv.config();
 
-mongoose
-  .connect(process.env.MONGO)
+// mongoose.connect(process.env.MONGO)
+mongoose.connect('mongodb+srv://amanullah:amanullah@all-pakistan-real-estat.o65qg58.mongodb.net/all-pak-real-estate?retryWrites=true&w=majority')
+// mongoose.connect('mongodb://localhost:27017/all-pakistan-real-estate?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false')
   .then(() => {
     console.log('Connected to MongoDB!');
   })
