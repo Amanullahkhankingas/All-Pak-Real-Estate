@@ -259,27 +259,27 @@ export default function CreateListing() {
                 selected={country}
                 setSelected={setCountry}/>
           </div> */}
-          {state && (<div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
+          <div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
            <label>State</label>
-           <Selection
+           {state && (<Selection
                 key={state}
                 data={stateData}
                 selected={state}
                 setSelected={setState}
                 index={10}
-              />
-          </div>)}
-          {cityData && (<div className='flex gap-4 items-center font-semibold text-slate-700 justify-between'>
+              />)}
+          </div>
+          <div className='flex gap-4 items-center font-semibold text-slate-700 justify-between'>
            <label>City</label>
-           <Selection
+           {cityData && (<Selection
              key={city}
              data={cityData}
              selected={city}
              setSelected={setCity}
              index={0}
-             />
+             />)}
              
-          </div>)}
+          </div>
           {/* // adding States and cities */}
           
           <input
