@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState } from 'react';
 import {
   getDownloadURL,
   getStorage,
@@ -9,6 +9,9 @@ import { app } from '../firebase';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
+import { City, Country, State } from "country-state-city";
+import Selection from '../components/Selection';
+
 export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -17,6 +20,8 @@ export default function CreateListing() {
     imageUrls: [],
     name: '',
     description: '',
+    state1:'',
+    city1:'',
     address: '',
     type: 'rent',
     bedrooms: 1,
@@ -31,7 +36,7 @@ export default function CreateListing() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  console.log(formData);
+  // console.log(formData);
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       setUploading(true);
@@ -59,6 +64,60 @@ export default function CreateListing() {
       setUploading(false);
     }
   };
+  // country state cities 
+
+  let countryData = Country.getAllCountries();
+  // const [stateData, setStateData] = useState([{name:'select your state'}]);
+  const [stateData, setStateData] = useState();
+  const [cityData, setCityData] = useState(); 
+  
+  // console.log(countryData)
+
+  // position =166
+  //const pakistan={
+  //   currency: "PKR",
+  //   flag: "🇵🇰",
+  //   isoCode: "PK",
+  //   latitude: "30.00000000",
+  //   longitude: "70.00000000",
+  //   name: "Pakistan",
+  //   phonecode: "92"}
+
+  const [country, setCountry] = useState(countryData[166]);
+  const [state, setState] = useState();
+  const [city, setCity] = useState();
+
+  {state? console.log(state.name): ''}
+  {city? console.log(city.name): ''}
+
+  useEffect(() => {
+    setStateData(State.getStatesOfCountry(country?.isoCode));
+  }, [country]);
+  
+  useEffect(() => {
+    stateData && setState(stateData[1]);
+  }, [stateData]);
+  
+
+  useEffect(() => {
+    setCityData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
+  }, [state]);
+
+  useEffect(() => {
+     
+    city &&  setFormData({...formData, state1:state.name, city1:null});
+    console.log('this is the state')
+  }, [state]);
+  
+
+ 
+
+  useEffect(() => {
+    city &&  setFormData({...formData, state1:state.name, city1:city.name});
+    console.log('this is the city')
+  }, [city]);
+
+  // country state cities 
 
   const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
@@ -125,7 +184,14 @@ export default function CreateListing() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // setFormData({...formData, state1:state.name, city1:city.name});
+    console.log(formData)
     try {
+      if (!formData.state1)
+        return setError('You must specified the State');
+      if (!formData.city1)
+        return setError('You must specified the City');
+
       if (formData.imageUrls.length < 1)
         return setError('You must upload at least one image');
       if (+formData.regularPrice < +formData.discountPrice)
@@ -147,12 +213,16 @@ export default function CreateListing() {
       if (data.success === false) {
         setError(data.message);
       }
+      console.log(formData);
+      setCity('')
+      setState('')
       navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
+
   return (
     <main className='p-3 max-w-4xl mx-auto'>
       <h1 className='text-3xl font-semibold text-center my-7'>
@@ -180,6 +250,38 @@ export default function CreateListing() {
             onChange={handleChange}
             value={formData.description}
           />
+          {/* // adding States and cities */}
+          {/* <div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
+           <label>country</label>
+           <Selection
+                key={country}
+                data={countryData}
+                selected={country}
+                setSelected={setCountry}/>
+          </div> */}
+          {state && (<div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
+           <label>State</label>
+           <Selection
+                key={state}
+                data={stateData}
+                selected={state}
+                setSelected={setState}
+                index={10}
+              />
+          </div>)}
+          {cityData && (<div className='flex gap-4 items-center font-semibold text-slate-700 justify-between'>
+           <label>City</label>
+           <Selection
+             key={city}
+             data={cityData}
+             selected={city}
+             setSelected={setCity}
+             index={0}
+             />
+             
+          </div>)}
+          {/* // adding States and cities */}
+          
           <input
             type='text'
             placeholder='Address'
