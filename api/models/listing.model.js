@@ -10,6 +10,14 @@ const listingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    state1: {
+      type: String,
+      required: true,
+    },
+    city1: {
+      type: String,
+      required: true,
+    },
     address: {
       type: String,
       required: true,
