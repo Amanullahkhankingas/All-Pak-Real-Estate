@@ -17,6 +17,23 @@ export default function ListingItem({ listing }) {
           <p className='truncate text-lg font-semibold text-slate-700'>
             {listing.name}
           </p>
+
+          {/* state and city */}
+          <div className='flex gap-2 m-1  flex-wrap'>
+
+            <p className='flex items-center gap-2 text-slate-600  text-sm'>
+              <spam className='font-bold text-slate-800 ' >State :</spam>
+              {listing.state1.name}
+              {/* the state */}
+            </p>
+            <p className='flex items-center gap-2 text-slate-600  text-sm'>
+            <span className='font-bold text-slate-800 ' >City :</span>
+              {listing.city1.name }
+              {/* the city */}
+            </p>
+          </div>
+          {/* state and city */}
+ 
           <div className='flex items-center gap-1'>
             <MdLocationOn className='h-4 w-4 text-green-700' />
             <p className='text-sm text-gray-600 truncate w-full'>
@@ -27,7 +44,7 @@ export default function ListingItem({ listing }) {
             {listing.description}
           </p>
           <p className='text-slate-500 mt-2 font-semibold '>
-            $
+            Rs
             {listing.offer
               ? listing.discountPrice.toLocaleString('en-US')
               : listing.regularPrice.toLocaleString('en-US')}

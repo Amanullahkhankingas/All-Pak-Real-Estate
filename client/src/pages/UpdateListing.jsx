@@ -8,6 +8,8 @@ import {
 import { app } from '../firebase';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
+import Selection from '../components/Selection';
+import { City, Country, State } from "country-state-city";
 
 export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);
@@ -18,6 +20,8 @@ export default function CreateListing() {
     imageUrls: [],
     name: '',
     description: '',
+    state1:'',
+    city1:'',
     address: '',
     type: 'rent',
     bedrooms: 1,
@@ -33,6 +37,54 @@ export default function CreateListing() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
+
+
+
+  // country state cities 
+
+  let countryData = Country.getAllCountries();
+  // const [stateData, setStateData] = useState([{name:'select your state'}]);
+  const [stateData, setStateData] = useState();
+  const [cityData, setCityData] = useState(); 
+
+  const [country, setCountry] = useState(countryData[166]);
+  const [state, setState] = useState();
+  const [city, setCity] = useState();
+
+  {state? console.log(state.name): ''}
+  {city? console.log(city.name): ''}
+
+  useEffect(() => {
+    setStateData(State.getStatesOfCountry(country?.isoCode));
+  }, [country]);
+  
+  // useEffect(() => {
+  //   stateData && setState(stateData[1]);
+  //   console.log(stateData)
+  // }, [stateData]);
+  
+
+  useEffect(() => {
+    setCityData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
+
+  }, [state]);
+
+  useEffect(() => {
+     
+    state &&  setFormData({...formData, state1:state});
+    console.log('this is the state')
+  }, [state]);
+  
+
+ 
+
+  useEffect(() => {
+    city &&  setFormData({...formData, state1:state, city1:city});
+    console.log('this is the city')
+  }, [city]);
+
+  // country state cities
+
   useEffect(() => {
     const fetchListing = async () => {
       const listingId = params.listingId;
@@ -43,10 +95,17 @@ export default function CreateListing() {
         return;
       }
       setFormData(data);
+      
     };
 
     fetchListing();
   }, []);
+
+  useEffect(()=>{
+    setState(formData.state1)
+    setCity(formData.city1)
+    console.log('run this',formData.state1)
+  },[]);
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -196,6 +255,31 @@ export default function CreateListing() {
             onChange={handleChange}
             value={formData.description}
           />
+          
+          {/* // adding States and cities */}
+          
+          <div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
+           <label>State</label>
+           {formData.state1 && (<Selection
+                key={formData.state1}
+                data={stateData}
+                selected={formData.state1}
+                setSelected={setState}
+                index={10}
+              />)}
+          </div>
+          <div className='flex gap-4 items-center font-semibold text-slate-700 justify-between'>
+           <label>City</label>
+           {formData.city1 && (<Selection
+             key={formData.city}
+             data={cityData}
+             selected={formData.city1}
+             setSelected={setCity}
+             index={0}
+             />)}
+             
+          </div>
+          {/* // adding States and cities */}
           <input
             type='text'
             placeholder='Address'
@@ -298,7 +382,7 @@ export default function CreateListing() {
               <div className='flex flex-col items-center'>
                 <p>Regular price</p>
                 {formData.type === 'rent' && (
-                  <span className='text-xs'>($ / month)</span>
+                  <span className='text-xs'>(Rs / month)</span>
                 )}
               </div>
             </div>
@@ -317,7 +401,7 @@ export default function CreateListing() {
                 <div className='flex flex-col items-center'>
                   <p>Discounted price</p>
                   {formData.type === 'rent' && (
-                    <span className='text-xs'>($ / month)</span>
+                    <span className='text-xs'>(Rs / month)</span>
                   )}
                 </div>
               </div>

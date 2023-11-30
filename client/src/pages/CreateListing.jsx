@@ -96,16 +96,18 @@ export default function CreateListing() {
   
   useEffect(() => {
     stateData && setState(stateData[1]);
+    console.log(stateData)
   }, [stateData]);
   
 
   useEffect(() => {
     setCityData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
+
   }, [state]);
 
   useEffect(() => {
      
-    city &&  setFormData({...formData, state1:state.name, city1:null});
+    city &&  setFormData({...formData, state1:state, city1:null});
     console.log('this is the state')
   }, [state]);
   
@@ -113,7 +115,7 @@ export default function CreateListing() {
  
 
   useEffect(() => {
-    city &&  setFormData({...formData, state1:state.name, city1:city.name});
+    city &&  setFormData({...formData, state1:state, city1:city});
     console.log('this is the city')
   }, [city]);
 
@@ -384,7 +386,7 @@ export default function CreateListing() {
               <div className='flex flex-col items-center'>
                 <p>Regular price</p>
                 {formData.type === 'rent' && (
-                  <span className='text-xs'>($ / month)</span>
+                  <span className='text-xs'>(Rs / month)</span>
                 )}
               </div>
             </div>
@@ -404,7 +406,7 @@ export default function CreateListing() {
                   <p>Discounted price</p>
 
                   {formData.type === 'rent' && (
-                    <span className='text-xs'>($ / month)</span>
+                    <span className='text-xs'>(Rs / month)</span>
                   )}
                 </div>
               </div>

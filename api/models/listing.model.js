@@ -11,11 +11,11 @@ const listingSchema = new mongoose.Schema(
       required: true,
     },
     state1: {
-      type: String,
+      type: Object,
       required: true,
     },
     city1: {
-      type: String,
+      type: Object,
       required: true,
     },
     address: {
