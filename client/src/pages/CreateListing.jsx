@@ -20,8 +20,8 @@ export default function CreateListing() {
     imageUrls: [],
     name: '',
     description: '',
-    state1:'',
-    city1:'',
+    state1:{id : 2, name: 'Select your state'},
+    city1:{id : 12, name: 'Select your city'},
     address: '',
     type: 'rent',
     bedrooms: 1,
@@ -67,9 +67,8 @@ export default function CreateListing() {
   // country state cities 
 
   let countryData = Country.getAllCountries();
-  // const [stateData, setStateData] = useState([{name:'select your state'}]);
   const [stateData, setStateData] = useState();
-  const [cityData, setCityData] = useState(); 
+  const [cityData, setCityData] = useState([{id:43, name: "Select state first",}]); 
   
   // console.log(countryData)
 
@@ -83,42 +82,36 @@ export default function CreateListing() {
   //   name: "Pakistan",
   //   phonecode: "92"}
 
+
   const [country, setCountry] = useState(countryData[166]);
   const [state, setState] = useState();
   const [city, setCity] = useState();
-
-  {state? console.log(state.name): ''}
-  {city? console.log(city.name): ''}
-
+  
   useEffect(() => {
-    setStateData(State.getStatesOfCountry(country?.isoCode));
+    country && setStateData(State.getStatesOfCountry(country?.isoCode));
   }, [country]);
-  
-  useEffect(() => {
-    stateData && setState(stateData[1]);
-    console.log(stateData)
-  }, [stateData]);
-  
 
   useEffect(() => {
-    setCityData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
-
+    state && setCityData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
+    state && setFormData({...formData, state1:state,city1:{id:12,name:'Select your city'}})
+    // console.log(state)
+    
   }, [state]);
 
+
   useEffect(() => {
-     
-    city &&  setFormData({...formData, state1:state, city1:null});
-    console.log('this is the state')
-  }, [state]);
+    console.log(formData)
+    
+  }, [formData]);
+
   
-
- 
-
   useEffect(() => {
-    city &&  setFormData({...formData, state1:state, city1:city});
+    city &&  setFormData({...formData,city1:city});
     console.log('this is the city')
+    console.log(cityData)
   }, [city]);
 
+  // country state cities
   // country state cities 
 
   const storeImage = async (file) => {
@@ -189,10 +182,10 @@ export default function CreateListing() {
     // setFormData({...formData, state1:state.name, city1:city.name});
     console.log(formData)
     try {
-      if (!formData.state1)
-        return setError('You must specified the State');
-      if (!formData.city1)
-        return setError('You must specified the City');
+      if (!formData.state1 || formData.state1.name == 'Select your state')
+        return setError('Please specified the State');
+      if (!formData.city1 || formData.city1.name == 'Select your city')
+        return setError('Please specified the City');
 
       if (formData.imageUrls.length < 1)
         return setError('You must upload at least one image');
@@ -253,20 +246,13 @@ export default function CreateListing() {
             value={formData.description}
           />
           {/* // adding States and cities */}
-          {/* <div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
-           <label>country</label>
-           <Selection
-                key={country}
-                data={countryData}
-                selected={country}
-                setSelected={setCountry}/>
-          </div> */}
+         
           <div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
            <label>State</label>
-           {state && (<Selection
-                key={state}
+           {stateData && (<Selection
+                key={formData.state1}
                 data={stateData}
-                selected={state}
+                selected={formData.state1}
                 setSelected={setState}
                 index={10}
               />)}
@@ -274,11 +260,11 @@ export default function CreateListing() {
           <div className='flex gap-4 items-center font-semibold text-slate-700 justify-between'>
            <label>City</label>
            {cityData && (<Selection
-             key={city}
+             key={formData.city1}
              data={cityData}
-             selected={city}
+             selected={formData.city1}
              setSelected={setCity}
-             index={0}
+             index={1}
              />)}
              
           </div>

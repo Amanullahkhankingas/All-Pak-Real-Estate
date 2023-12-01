@@ -43,47 +43,43 @@ export default function CreateListing() {
   // country state cities 
 
   let countryData = Country.getAllCountries();
-  // const [stateData, setStateData] = useState([{name:'select your state'}]);
   const [stateData, setStateData] = useState();
   const [cityData, setCityData] = useState(); 
 
   const [country, setCountry] = useState(countryData[166]);
   const [state, setState] = useState();
   const [city, setCity] = useState();
-
-  {state? console.log(state.name): ''}
-  {city? console.log(city.name): ''}
-
+  
   useEffect(() => {
-    setStateData(State.getStatesOfCountry(country?.isoCode));
+    country && setStateData(State.getStatesOfCountry(country?.isoCode));
   }, [country]);
-  
-  // useEffect(() => {
-  //   stateData && setState(stateData[1]);
-  //   console.log(stateData)
-  // }, [stateData]);
-  
 
   useEffect(() => {
     setCityData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
-
+    state && setFormData({...formData, state1:state,city1:{id:12,name:'Select your city'}})
+    console.log(state)
+    
   }, [state]);
 
   useEffect(() => {
-     
-    state &&  setFormData({...formData, state1:state});
-    console.log('this is the state')
-  }, [state]);
+    setCityData(City.getCitiesOfState(country?.isoCode, formData.state1?.isoCode));
+    console.log('fetch city data')
+    
+  }, [stateData && formData]);
+
+  useEffect(() => {
+    console.log(formData)
+    
+  }, [formData]);
+
   
-
- 
-
   useEffect(() => {
-    city &&  setFormData({...formData, state1:state, city1:city});
+    city &&  setFormData({...formData,city1:city});
     console.log('this is the city')
   }, [city]);
 
   // country state cities
+
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -201,6 +197,11 @@ export default function CreateListing() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!formData.state1 )
+      return setError('Please specified the State');
+    if (!formData.city1 || formData.city1.name== 'Select your city')
+      return setError('Please specified the City');
+
       if (formData.imageUrls.length < 1)
         return setError('You must upload at least one image');
       if (+formData.regularPrice < +formData.discountPrice)
@@ -260,7 +261,7 @@ export default function CreateListing() {
           
           <div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
            <label>State</label>
-           {formData.state1 && (<Selection
+           {stateData && (<Selection
                 key={formData.state1}
                 data={stateData}
                 selected={formData.state1}
@@ -275,7 +276,7 @@ export default function CreateListing() {
              data={cityData}
              selected={formData.city1}
              setSelected={setCity}
-             index={0}
+             index={1}
              />)}
              
           </div>

@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListingItem from '../components/ListingItem';
+import { City, Country, State } from "country-state-city";
+import Selection from '../components/Selection';
 
 export default function Search() {
   const navigate = useNavigate();
   const [sidebardata, setSidebardata] = useState({
     searchTerm: '',
+    state1:{id:2,name:'Select your state'},
+    city1:{id:12,name:'Select your city'},
     type: 'all',
     parking: false,
     furnished: false,
@@ -18,9 +22,63 @@ export default function Search() {
   const [listings, setListings] = useState([]);
   const [showMore, setShowMore] = useState(false);
 
+  
+
+  // country state cities 
+
+  let countryData = Country.getAllCountries();
+  // const [stateData, setStateData] = useState([{name:'select your state'}]);
+  const [stateData, setStateData] = useState();
+  const [cityData, setCityData] = useState(); 
+
+  const [country, setCountry] = useState(countryData[166]);
+  const [state, setState] = useState();
+  const [city, setCity] = useState();
+  
+  useEffect(() => {
+    country && setStateData(State.getStatesOfCountry(country?.isoCode));
+  }, [country]);
+  
+  // console.log(stateData)
+  // useEffect(() => {
+  //   stateData && setState(stateData[1]);
+  // }, [stateData]);
+  
+
+  useEffect(() => {
+    setCityData(City.getCitiesOfState(country?.isoCode, state?.isoCode));
+    state && setSidebardata({...sidebardata, state1:state,city1:{id:12,name:'Select your city'}})
+    console.log(state)
+    
+  }, [state]);
+
+  useEffect(() => {
+    console.log(sidebardata)
+    
+  }, [sidebardata]);
+  
+  // useEffect(() => {
+    
+  //   state && sidebardata({...sidebardata, sidebardata[name]:state})
+  //   console.log('this is the state')
+  // }, [state]);
+  
+
+ 
+
+  useEffect(() => {
+    city &&  setSidebardata({...sidebardata,city1:city});
+    console.log('this is the city')
+  }, [city]);
+
+  // country state cities
+
+
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const searchTermFromUrl = urlParams.get('searchTerm');
+    const state1FromUrl =urlParams.get('state1')
+    const city1FromUrl =urlParams.get('city1')
     const typeFromUrl = urlParams.get('type');
     const parkingFromUrl = urlParams.get('parking');
     const furnishedFromUrl = urlParams.get('furnished');
@@ -29,6 +87,8 @@ export default function Search() {
     const orderFromUrl = urlParams.get('order');
 
     if (
+      state1FromUrl ||
+      city1FromUrl ||
       searchTermFromUrl ||
       typeFromUrl ||
       parkingFromUrl ||
@@ -38,6 +98,9 @@ export default function Search() {
       orderFromUrl
     ) {
       setSidebardata({
+        // ...sidebardata,
+        state1:{id:1,name:state1FromUrl} || 'Select your state',
+        city1:{id:1,name:city1FromUrl} || 'Select your city',
         searchTerm: searchTermFromUrl || '',
         type: typeFromUrl || 'all',
         parking: parkingFromUrl === 'true' ? true : false,
@@ -52,6 +115,7 @@ export default function Search() {
       setLoading(true);
       setShowMore(false);
       const searchQuery = urlParams.toString();
+            
       const res = await fetch(`/api/listing/get?${searchQuery}`);
       const data = await res.json();
       if (data.length > 8) {
@@ -104,6 +168,10 @@ export default function Search() {
     e.preventDefault();
     const urlParams = new URLSearchParams();
     urlParams.set('searchTerm', sidebardata.searchTerm);
+    // urlParams.set('state1','Balochistan');
+    // urlParams.set('city1','Bela');
+    urlParams.set('state1',sidebardata.state1.name);
+    urlParams.set('city1',sidebardata.city1.name);
     urlParams.set('type', sidebardata.type);
     urlParams.set('parking', sidebardata.parking);
     urlParams.set('furnished', sidebardata.furnished);
@@ -127,6 +195,7 @@ export default function Search() {
     }
     setListings([...listings, ...data]);
   };
+
   return (
     <div className='flex flex-col md:flex-row'>
       <div className='p-7  border-b-2 md:border-r-2 md:min-h-screen'>
@@ -210,6 +279,29 @@ export default function Search() {
               <span>Furnished</span>
             </div>
           </div>
+          {/* state and city  */}
+          <div className='flex gap-2 items-center font-semibold text-slate-700 justify-between'>
+           <label>State</label>
+           {stateData && (<Selection
+                key={city}
+                data={stateData}
+                selected={sidebardata.state1}
+                setSelected={setState}
+                index={10}
+              />)}
+          </div>
+          <div className='flex gap-4 items-center font-semibold text-slate-700 justify-between'>
+           <label>City</label>
+           {cityData && (<Selection
+             key={city}
+             data={cityData}
+             selected={sidebardata.city1}
+             setSelected={setCity}
+             index={0}
+             />)}
+             
+          </div>
+          {/* state and city  */}
           <div className='flex items-center gap-2'>
             <label className='font-semibold'>Sort:</label>
             <select

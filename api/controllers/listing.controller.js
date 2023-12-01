@@ -66,6 +66,16 @@ export const getListings = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 9;
     const startIndex = parseInt(req.query.startIndex) || 0;
+
+    let state1= req.query.state1 ;
+    if(state1==undefined || state1== '' || state1== 'Select your state'){
+      state1 = {$ne:''}
+    }
+    let city1= req.query.city1 ;
+    if(city1==undefined || city1== '' || city1== 'Select your city'){
+      city1 = {$ne:''}
+    }
+    
     let offer = req.query.offer;
 
     if (offer === undefined || offer === 'false') {
@@ -98,6 +108,8 @@ export const getListings = async (req, res, next) => {
 
     const listings = await Listing.find({
       name: { $regex: searchTerm, $options: 'i' },
+      'state1.name':state1,
+      'city1.name':city1,
       offer,
       furnished,
       parking,
